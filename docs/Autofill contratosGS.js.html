@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Autofill contratosGS.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#contratoDePrestacion">contratoDePrestacion</a></li><li><a href="global.html#contratoDeServiciosconrpl">contratoDeServiciosconrpl</a></li><li><a href="global.html#onOpen">onOpen</a></li><li><a href="global.html#ordendeServicios">ordendeServicios</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Autofill contratosGS.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Genera un menú en la hoja de cálculo que permite generar los contratos para cada tipo
+ */
+function onOpen() {
+
+    const ui = SpreadsheetApp.getUi();
+    const menu = ui.createMenu('Crear');
+    menu.addItem('CPSRPL', 'contratoDeServiciosconrpl');
+    menu.addItem('CPS', 'contratoDePrestacion');
+    menu.addItem('OS', 'ordendeServicios');
+    ;
+    menu.addToUi();
+
+
+}
+
+/**
+ * Permite crear contratos de prestación de servicios con representante legal
+ */
+function contratoDeServiciosconrpl() {
+
+    const googleTemplate = DriveApp.getFileById('1uhY4S4Do_Z3czBmgOW-khmTmGOB28dKor9iEfmBbLN8');
+    const folder = DriveApp.getFolderById('11m3XK9Kd4MHRwsqrDrGDSVWL8_1yZBk0');
+    const sheet1 = SpreadsheetApp.openById('1CgEI8rd4oBCBpUdfSUjW4j4i8zIlMhVZ8ggEF8sc5jc');
+    const sheet = sheet1.getSheetByName('ARRAY');
+    const range = sheet.getDataRange().getValues();
+
+    range.forEach(function (range, index) {
+        if (index === 0) return;
+        if (range[59]) return;
+        if (range[21] == '') return;
+        if (range[21] == 'ORDEN DE SERVICIOS') return;
+        if (range[21] == 'CONTRATO DE PRESTACIÓN DE SERVICIOS') return;
+        if (range[29] == 'APROBADO GERENCIA') return;
+        if (range[29] == 'APROBADO JURIDICA') return;
+        const copy = googleTemplate.makeCopy(`Contrato de servicios ${range[4]}`, folder)
+        const doc = DocumentApp.openById(copy.getId())
+        const body = doc.getBody();
+
+        body.replaceText('&lt;&lt; N de contrato >>', range[4]);
+        body.replaceText('&lt;&lt;Fecha de inicio>>', range[15]);
+        body.replaceText('&lt;&lt;Tipo de persona>>', range[2]);
+        body.replaceText('&lt;&lt;Razon Social>>', range[5]);
+        body.replaceText('&lt;&lt;Tipo de identificacion>>', range[1]);
+        body.replaceText('&lt;&lt;N de identificacion>>', range[3]);
+        body.replaceText('&lt;&lt;Nombre del representante>>', range[7]);
+        body.replaceText('&lt;&lt;Tipo de identificacion del representante>>', range[8]);
+        body.replaceText('&lt;&lt;N° de identificacion del representante>>', range[9]);
+        body.replaceText('&lt;&lt;Ciudad del domicilio>>', range[10]);
+        body.replaceText('&lt;&lt;Desarrollo del contrato>>', range[58]);
+        body.replaceText('&lt;&lt;Valor hora en letras>>', range[47]);
+        body.replaceText('&lt;&lt;Valor hora>>', range[46]);
+        body.replaceText('&lt;&lt;Valor en letras>>', range[45]);
+        body.replaceText('&lt;&lt;Valor sin IVA>>', range[23]);
+        body.replaceText('&lt;&lt;Plazo meses>>', range[48]);
+        body.replaceText('&lt;&lt;Dia inicio>>', range[49]);
+        body.replaceText('&lt;&lt;Inicio en letras>>', range[55]);
+        body.replaceText('&lt;&lt;año de inicio>>', range[51]);
+        body.replaceText('&lt;&lt;Dia de terminacion>>', range[52]);
+        body.replaceText('&lt;&lt;Terminacion en letras>>', range[56]);
+        body.replaceText('&lt;&lt;año de terminación>>', range[54]);
+        body.replaceText('&lt;&lt;Direccion del domicilio>>', range[11]);
+        body.replaceText('&lt;&lt; Numero de telefono >>', range[13]);
+        body.replaceText('&lt;&lt;Objeto>>', range[19]);
+        body.replaceText('&lt;&lt;Alcance del contrato>>', range[18]);
+        body.replaceText('&lt;&lt;Dia de elaboracion del contrato>>', range[57]);
+
+
+        doc.saveAndClose();
+        const url = doc.getUrl();
+        sheet.getRange(index + 1, 60).setValue(url);
+
+
+    })
+
+
+}
+
+
+/**
+ * Permite crear contratos de prestación de servicios
+ */
+function contratoDePrestacion() {
+
+    const googleTemplate = DriveApp.getFileById('1rYIbsK7pRN3dtpzHzK9dm0-GendBRguvoXSomFouCCs');
+    const folder = DriveApp.getFolderById('11m3XK9Kd4MHRwsqrDrGDSVWL8_1yZBk0');
+    const sheet1 = SpreadsheetApp.openById('1CgEI8rd4oBCBpUdfSUjW4j4i8zIlMhVZ8ggEF8sc5jc');
+    const sheet = sheet1.getSheetByName('ARRAY');
+    const range = sheet.getDataRange().getValues();
+
+    range.forEach(function (range, index) {
+        if (index === 0) return;
+        if (range[59]) return;
+        if (range[21] == '') return;
+        if (range[21] == 'ORDEN DE SERVICIOS') return;
+        if (range[21] == 'CONTRATO DE PRESTACIÓN DE SERVICIOS CON REPRESENTANTE LEGAL') return;
+        if (range[29] == 'APROBADO GERENCIA') return;
+        if (range[29] == 'APROBADO JURIDICA') return;
+        const copy = googleTemplate.makeCopy(`Contrato de servicios ${range[4]}`, folder)
+        const doc = DocumentApp.openById(copy.getId())
+        const body = doc.getBody();
+
+        body.replaceText('&lt;&lt; N de contrato >>', range[4]);
+        body.replaceText('&lt;&lt;Fecha de inicio>>', range[15]);
+        body.replaceText('&lt;&lt; Razon Social >>', range[5]);
+        body.replaceText('&lt;&lt;Tipo de identificacion>>', range[1]);
+        body.replaceText('&lt;&lt;N de identificacion>>', range[3]);
+        body.replaceText('&lt;&lt;Ciudad del domicilio>>', range[10]);
+        body.replaceText('&lt;&lt;Desarrollo del contrato>>', range[58]);
+        body.replaceText('&lt;&lt;Valor hora en letras>>', range[47]);
+        body.replaceText('&lt;&lt;Valor hora>>', range[46]);
+        body.replaceText('&lt;&lt;Valor en letras>>', range[45]);
+        body.replaceText('&lt;&lt;Valor sin IVA>>', range[23]);
+        body.replaceText('&lt;&lt;Plazo meses>>', range[48]);
+        body.replaceText('&lt;&lt;Dia inicio>>', range[49]);
+        body.replaceText('&lt;&lt;Inicio en letras>>', range[55]);
+        body.replaceText('&lt;&lt;año de inicio>>', range[51]);
+        body.replaceText('&lt;&lt;Dia de terminacion>>', range[52]);
+        body.replaceText('&lt;&lt;Terminacion en letras>>', range[56]);
+        body.replaceText('&lt;&lt;año de terminación>>', range[54]);
+        body.replaceText('&lt;&lt;Direccion del domicilio>>', range[11]);
+        body.replaceText('&lt;&lt; Objeto >>', range[17]);
+        body.replaceText('&lt;&lt; Numero de telefono >>', range[13]);
+        body.replaceText('&lt;&lt;Dia de elaboracion del contrato>>', range[57]);
+
+        doc.saveAndClose();
+        const url = doc.getUrl();
+        sheet.getRange(index + 1, 60).setValue(url);
+
+
+
+    })
+
+
+
+}
+
+/**
+ * Permite crear contratos de ordenes de servicios
+ */
+function ordendeServicios() {
+
+    const googleTemplate = DriveApp.getFileById('1NLJzt7N2om3TMS6RuaWzfThKoYUw-k68sSHT88Mi818');
+    const folder = DriveApp.getFolderById('1cbYpfqh2psib8klFyCBmQ6bF3F9ProSF');
+    const sheet1 = SpreadsheetApp.openById('1CgEI8rd4oBCBpUdfSUjW4j4i8zIlMhVZ8ggEF8sc5jc');
+    const sheet = sheet1.getSheetByName('ARRAY');
+    const range = sheet.getDataRange().getValues();
+
+    range.forEach(function (range, index) {
+        if (index === 0) return;
+        if (range[59]) return;
+        if (range[21] == '') return;
+        if (range[21] == 'CONTRATO DE PRESTACIÓN DE SERVICIOS') return;
+        if (range[21] == 'CONTRATO DE PRESTACIÓN DE SERVICIOS CON REPRESENTANTE LEGAL') return;
+        if (range[29] == 'APROBADO GERENCIA') return;
+        if (range[29] == 'APROBADO JURIDICA') return;
+        const copy = googleTemplate.makeCopy(`Orden de servicios ${range[4]}`, folder)
+        const doc = DocumentApp.openById(copy.getId())
+        const body = doc.getBody();
+
+        body.replaceText('&lt;&lt;N de contrato>>', range[4]);
+        body.replaceText('&lt;&lt;Fecha de inicio>>', range[15]);
+        body.replaceText('&lt;&lt;Tipo de persona>>', range[2]);
+        body.replaceText('&lt;&lt;Razon social>>', range[5]);
+        body.replaceText('&lt;&lt;Tipo de identificacion>>', range[1]);
+        body.replaceText('&lt;&lt;N de identificacion>>', range[3]);
+        body.replaceText('&lt;&lt;Ciudad de domicilio>>', range[10]);
+        body.replaceText('&lt;&lt;Desarrollo del contrato>>', range[58]);
+        body.replaceText('&lt;&lt;Valor hora en letras>>', range[47]);
+        body.replaceText('&lt;&lt;Valor hora>>', range[46]);
+        body.replaceText('&lt;&lt;Valor en letras>>', range[45]);
+        body.replaceText('&lt;&lt;Valor (sin IVA)>>', range[23]);
+        body.replaceText('&lt;&lt;Plazo meses>>', range[48]);
+        body.replaceText('&lt;&lt;Dia de inicio>>', range[49]);
+        body.replaceText('&lt;&lt;Inicio en letras>>', range[55]);
+        body.replaceText('&lt;&lt;año de inicio>>', range[51]);
+        body.replaceText('&lt;&lt;Dia de terminacion>>', range[52]);
+        body.replaceText('&lt;&lt;Terminacion en letras>>', range[56]);
+        body.replaceText('&lt;&lt;año de terminación>>', range[54]);
+        body.replaceText('&lt;&lt;Direccion del domicilio>>', range[11]);
+        body.replaceText('&lt;&lt;Objeto>>', range[17]);
+        body.replaceText('&lt;&lt;Alcance del contrato>>', range[18]);
+        body.replaceText('&lt;&lt; Numero de telefono >>', range[13]);
+        body.replaceText('&lt;&lt;Dia de elaboracion del contrato>>', range[57]);
+
+        doc.saveAndClose();
+        const url = doc.getUrl();
+        sheet.getRange(index + 1, 60).setValue(url);
+
+
+
+    })
+
+
+
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Tue Dec 21 2021 10:30:45 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>
